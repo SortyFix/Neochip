@@ -26,6 +26,8 @@ class NC8_Core {
         void loadFonts();
         void setVF(bool val);
 
+        void updateDelay();
+
         void OP_00E0();
         void OP_00EE();
         void OP_1nnn();

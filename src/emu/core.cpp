@@ -89,6 +89,8 @@ void NC8_Core::tick()
     opcode = (prefix << 8) | suffix;
     std::cout << std::hex << opcode << " PC: " << pc << "\n";
     std::cout << std::flush;
+
+    updateDelay();
     
     switch((opcode & 0xF000) >> 12)
     {
@@ -230,6 +232,14 @@ void NC8_Core::tick()
     if (init_pc == pc) {
         if (jump) return;
         pc += 2;
+    }
+}
+
+void NC8_Core::updateDelay() 
+{
+    if(delay != 0)
+    {
+        delay--;
     }
 }
 
@@ -471,7 +481,8 @@ void NC8_Core::OP_ExA1() {
 }
 
 void NC8_Core::OP_Fx07() {
-    // TODO: Implement opcode Fx07 (set Vx = delay timer value)
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    g_reg[x] = delay;
 }
 
 void NC8_Core::OP_Fx0A() {
@@ -479,7 +490,8 @@ void NC8_Core::OP_Fx0A() {
 }
 
 void NC8_Core::OP_Fx15() {
-    // TODO: Implement opcode Fx15 (set delay timer = Vx)
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    delay = g_reg[x];
 }
 
 void NC8_Core::OP_Fx18() {
