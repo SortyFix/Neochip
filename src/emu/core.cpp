@@ -46,6 +46,7 @@ NC8_Core::NC8_Core(std::string path, NC8_Display* dsp)
 {
     loadFonts();
     loadROM(path);
+    pc = 0x200;
     display = dsp;
 }
 
@@ -64,6 +65,7 @@ void NC8_Core::loadROM(std::string path) {
         exit(1);
     }
 
+    romfile.seekg(0, std::ios::end);
     std::streamsize size = romfile.tellg();
     romfile.seekg(0, std::ios::beg);
 
@@ -78,10 +80,15 @@ void NC8_Core::loadROM(std::string path) {
 
 void NC8_Core::tick()
 {
+    uint16_t init_pc = pc;
     uint8_t prefix = memory[pc];
     uint8_t suffix = memory[pc+1];
 
+    bool jump = false;
+
     opcode = (prefix << 8) | suffix;
+    std::cout << std::hex << opcode << " PC: " << pc << "\n";
+    std::cout << std::flush;
     
     switch((opcode & 0xF000) >> 12)
     {
@@ -98,6 +105,7 @@ void NC8_Core::tick()
             break;
         case 1:
             OP_1nnn();
+            jump = true;
             break;
         case 2:
             OP_2nnn();
@@ -148,7 +156,7 @@ void NC8_Core::tick()
                     OP_8xyE();
                     break;
                 default:
-                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction 8xy" + std::to_string(opcode & 0x000F) + " at byte " + std::to_string(pc) + ".";
+                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction 8xy" << (opcode & 0x000F) << " at byte " << pc << ".\n";
                     break;
             }
             break;
@@ -175,8 +183,8 @@ void NC8_Core::tick()
                 case 0xA1:
                     OP_ExA1();
                     break;
-                default:
-                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction Ex" + std::to_string(opcode & 0x00FF) + " at byte " + std::to_string(pc) + ".";
+                default: 
+                    std::cout << "ROM ERROR: Unknown instruction Ex" << (opcode & 0x00FF) << " at byte " << pc << ".\n";
                     break; 
             }
             break;
@@ -210,9 +218,18 @@ void NC8_Core::tick()
                     OP_Fx65();
                     break;
                 default:
-                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction Fx" + std::to_string(opcode & 0x00FF) + " at byte " + std::to_string(pc) + ".";
+                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction Fx" << opcode << " at byte " + std::to_string(pc) + ".\n";
+                    break;
             }
             break;
+    }
+
+    std::cout << init_pc << " ";
+    std::cout << pc << " ";
+
+    if (init_pc == pc) {
+        if (jump) return;
+        pc += 2;
     }
 }
 
@@ -445,7 +462,29 @@ void NC8_Core::OP_Dxyn()
 }
 
 // TODO BEGIN
+void NC8_Core::OP_Ex9E() {
+    // TODO: Implement opcode Ex9E (skip if key with value Vx is pressed)
+}
 
+void NC8_Core::OP_ExA1() {
+    // TODO: Implement opcode ExA1 (skip if key with value Vx is not pressed)
+}
+
+void NC8_Core::OP_Fx07() {
+    // TODO: Implement opcode Fx07 (set Vx = delay timer value)
+}
+
+void NC8_Core::OP_Fx0A() {
+    // TODO: Implement opcode Fx0A (wait for a key press, store in Vx)
+}
+
+void NC8_Core::OP_Fx15() {
+    // TODO: Implement opcode Fx15 (set delay timer = Vx)
+}
+
+void NC8_Core::OP_Fx18() {
+    // TODO: Implement opcode Fx18 (set sound timer = Vx)
+}
 // TODO END
 
 void NC8_Core::OP_Fx1E()

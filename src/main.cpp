@@ -29,17 +29,12 @@ int main()
         return 1;
     }
 
-    std::string path = "lsdkfj.ch8";
+    std::string path = "/home/sortyfix/Projects/C++/Neochip/src/roms/2-ibm-logo.ch8";
     std::uintmax_t file_size = std::filesystem::file_size(path);
     NC8_Display* display = new NC8_Display();
+    std::cout << "NEOCHIP-OK: Initialized display.\n";
     NC8_Core* core = new NC8_Core(path, display);
-    std::ifstream romfile(path, std::ios::binary);
-    uint8_t rom_buffer[file_size];
-
-    if(romfile)
-    {
-        romfile.read(reinterpret_cast<char*>(rom_buffer), file_size);
-    } 
+    std::cout << "NEOCHIP-OK: Initialized emulator core.\n";
 
     while(running)
     {
@@ -52,9 +47,9 @@ int main()
         }
 
         display->updateDisplay();
-
+        core->tick();
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     display->killDisplay();

@@ -34,6 +34,9 @@ void NC8_Display::clear()
     std::fill_n(framebuffer, 64 * 32, 0xFF000000);
 }
 
+/*
+    Toggles a pixel at the desired framebuffer location;
+*/
 void NC8_Display::togglePixel(int pixel)
 {
     if(framebuffer[pixel] == 0xFFFFFFFF)
@@ -45,6 +48,9 @@ void NC8_Display::togglePixel(int pixel)
     framebuffer[pixel] = 0xFFFFFFFF;
 }
 
+/**
+    Draws a pixel at the desired framebuffer location.
+*/
 void NC8_Display::drawPixel(int pixel)
 {
     framebuffer[pixel] = 0xFFFFFFFF;

@@ -9,6 +9,7 @@ class NC8_Core {
     public:
         NC8_Display* display;
         NC8_Core(std::string path, NC8_Display* dsp);
+        void tick();
     private:
         size_t rom_buffer_size;
         uint16_t pc;            // program counter
@@ -23,7 +24,6 @@ class NC8_Core {
 
         void loadROM(std::string path);
         void loadFonts();
-        void tick();
         void setVF(bool val);
 
         void OP_00E0();
