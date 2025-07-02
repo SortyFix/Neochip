@@ -23,7 +23,7 @@ class NC8_Core {
 
         void loadROM(std::string path);
         void loadFonts();
-        void tick(int i);
+        void tick();
         void setVF(bool val);
 
         void OP_00E0();

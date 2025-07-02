@@ -76,10 +76,10 @@ void NC8_Core::loadROM(std::string path) {
     romfile.read(reinterpret_cast<char*>(&memory[0x200]), size);
 }
 
-void NC8_Core::tick(int i)
+void NC8_Core::tick()
 {
-    uint8_t prefix = rom_buffer[i];
-    uint8_t suffix = rom_buffer[i+1];
+    uint8_t prefix = memory[pc];
+    uint8_t suffix = memory[pc+1];
 
     opcode = (prefix << 8) | suffix;
     
@@ -95,6 +95,7 @@ void NC8_Core::tick(int i)
                     OP_00EE();
                     break;
             }
+            break;
         case 1:
             OP_1nnn();
             break;
@@ -147,9 +148,10 @@ void NC8_Core::tick(int i)
                     OP_8xyE();
                     break;
                 default:
-                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction 8xy" + std::to_string(opcode & 0x000F) + " at byte " + std::to_string(i) + ".";
+                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction 8xy" + std::to_string(opcode & 0x000F) + " at byte " + std::to_string(pc) + ".";
                     break;
             }
+            break;
         case 9:
             OP_9xy0();
             break;
@@ -174,9 +176,10 @@ void NC8_Core::tick(int i)
                     OP_ExA1();
                     break;
                 default:
-                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction Ex" + std::to_string(opcode & 0x00FF) + " at byte " + std::to_string(i) + ".";
+                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction Ex" + std::to_string(opcode & 0x00FF) + " at byte " + std::to_string(pc) + ".";
                     break; 
             }
+            break;
         case 0xF:
             switch(opcode & 0x00FF) {
                 case 0x07:
@@ -187,6 +190,7 @@ void NC8_Core::tick(int i)
                     break;
                 case 0x15:
                     OP_Fx15();
+                    break;
                 case 0x18:
                     OP_Fx18();
                     break;
@@ -206,8 +210,9 @@ void NC8_Core::tick(int i)
                     OP_Fx65();
                     break;
                 default:
-                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction Fx" + std::to_string(opcode & 0x00FF) + " at byte " + std::to_string(i) + ".";
+                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction Fx" + std::to_string(opcode & 0x00FF) + " at byte " + std::to_string(pc) + ".";
             }
+            break;
     }
 }
 
@@ -292,7 +297,7 @@ void NC8_Core::OP_5xy0()
     uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t y = (opcode & 0x00F0) >> 4;
 
-    if(x == y)
+    if(g_reg[x] == g_reg[y])
     {
         pc += 2;
     }
@@ -362,15 +367,14 @@ void NC8_Core::OP_8xy5()
     uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t y = (opcode & 0x00F0) >> 4;
 
-    g_reg[x] = g_reg[x] - g_reg[y];
-
     if(g_reg[x] > g_reg[y])
     {
         g_reg[0xF] = 1;
         return;
     }
-
     g_reg[0xF] = 0;
+
+    g_reg[x] -= g_reg[y];
 }
 
 void NC8_Core::OP_8xy6()
@@ -391,7 +395,7 @@ void NC8_Core::OP_8xy7()
 void NC8_Core::OP_8xyE()
 {
     uint8_t x = (opcode & 0x0F00) >> 8;
-    if((g_reg[x] & 0x8000) == 1) g_reg[0xF] = 1; else g_reg[0xF] = 0;
+    if(((g_reg[x] & 0x80) >> 7) == 1) g_reg[0xF] = 1; else g_reg[0xF] = 0;
     g_reg[x] *= 2;
 }
 
