@@ -1,0 +1,3 @@
+/home/sortyfix/Projects/C++/Neochip/build/CMakeFiles/neochip.dir
+/home/sortyfix/Projects/C++/Neochip/build/CMakeFiles/edit_cache.dir
+/home/sortyfix/Projects/C++/Neochip/build/CMakeFiles/rebuild_cache.dir

@@ -8,7 +8,7 @@
 class NC8_Core {
     public:
         NC8_Display* display;
-        NC8_Core(uint8_t *rom, size_t rom_size, NC8_Display* dsp);
+        NC8_Core(std::string path, NC8_Display* dsp);
     private:
         size_t rom_buffer_size;
         uint16_t pc;            // program counter
@@ -21,7 +21,7 @@ class NC8_Core {
         uint8_t sound;          // sound timer
         uint16_t opcode;
 
-        void loadROM(uint8_t *rom, size_t rom_size);
+        void loadROM(std::string path);
         void loadFonts();
         void tick(int i);
         void setVF(bool val);

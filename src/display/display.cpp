@@ -52,6 +52,8 @@ void NC8_Display::drawPixel(int pixel)
 
 void NC8_Display::drawSprite(uint8_t vx, uint8_t vy, const uint8_t* n_bytes, size_t size, std::function<void()> vf_handler)
 {
+    bool collision = false;
+
     for (int row = 0; row < size; row++)
     {
         uint8_t spriteByte = n_bytes[row];
@@ -69,12 +71,17 @@ void NC8_Display::drawSprite(uint8_t vx, uint8_t vy, const uint8_t* n_bytes, siz
 
                 if(isPixelOn(index))
                 {
-                    vf_handler();
+                    collision = true;
                 }
 
                 togglePixel(index);
             }
         }
+    }
+
+    if(collision)
+    {
+        vf_handler();
     }
 }
 

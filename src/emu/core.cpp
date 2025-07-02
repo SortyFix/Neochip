@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
+#include <string>
 
 #define FONTSET_START 0x050
 
@@ -40,10 +42,10 @@ uint8_t fontset[80] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80
 };
 
-NC8_Core::NC8_Core(uint8_t *rom, size_t rom_size, NC8_Display* dsp)
+NC8_Core::NC8_Core(std::string path, NC8_Display* dsp)
 {
     loadFonts();
-    loadROM(rom, rom_size);
+    loadROM(path);
     display = dsp;
 }
 
@@ -54,16 +56,159 @@ void NC8_Core::loadFonts() {
     }
 }
 
-void NC8_Core::loadROM(uint8_t *rom, size_t rom_size) {
-    for(int i = 0; i < rom_size; i++)
+void NC8_Core::loadROM(std::string path) {
+    std::ifstream romfile(path, std::ios::binary);
+    if(!romfile)
     {
-        rom_buffer[i] = rom[i];
+        std::cerr << "NEOCHIP: Failed to open ROM file.\n";
+        exit(1);
     }
+
+    std::streamsize size = romfile.tellg();
+    romfile.seekg(0, std::ios::beg);
+
+    if(size > (4096 - 0x200))
+    {
+        std::cerr << "NEOCHIP: ROM file too large for memory.\n";
+        exit(1);
+    }
+
+    romfile.read(reinterpret_cast<char*>(&memory[0x200]), size);
 }
 
-void NC8_Core::tick()
+void NC8_Core::tick(int i)
 {
+    uint8_t prefix = rom_buffer[i];
+    uint8_t suffix = rom_buffer[i+1];
+
+    opcode = (prefix << 8) | suffix;
     
+    switch((opcode & 0xF000) >> 12)
+    {
+        case 0:
+            switch(opcode & 0x000F)
+            {
+                case 0x0:
+                    OP_00E0();
+                    break;
+                default:
+                    OP_00EE();
+                    break;
+            }
+        case 1:
+            OP_1nnn();
+            break;
+        case 2:
+            OP_2nnn();
+            break;
+        case 3:
+            OP_3xkk();
+            break;
+        case 4:
+            OP_4xkk();
+            break;
+        case 5:
+            OP_5xy0();
+            break;
+        case 6:
+            OP_6xkk();
+            break;
+        case 7:
+            OP_7xkk();
+            break;
+        case 8:
+            switch(opcode & 0x000F)
+            {
+                case 0:
+                    OP_8xy0();
+                    break;
+                case 1:
+                    OP_8xy1();
+                    break;
+                case 2:
+                    OP_8xy2();
+                    break;
+                case 3:
+                    OP_8xy3();
+                    break;
+                case 4:
+                    OP_8xy4();
+                    break;
+                case 5:
+                    OP_8xy5();
+                    break;
+                case 6:
+                    OP_8xy6();
+                    break;
+                case 7:
+                    OP_8xy7();
+                    break;
+                case 0xE:
+                    OP_8xyE();
+                    break;
+                default:
+                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction 8xy" + std::to_string(opcode & 0x000F) + " at byte " + std::to_string(i) + ".";
+                    break;
+            }
+        case 9:
+            OP_9xy0();
+            break;
+        case 0xA:
+            OP_Annn();
+            break;
+        case 0xB:
+            OP_Bnnn();
+            break;
+        case 0xC:
+            OP_Cxkk();
+            break;
+        case 0xD:
+            OP_Dxyn();
+            break;
+        case 0xE:
+            switch(opcode & 0x00FF) {
+                case 0x9E:
+                    OP_Ex9E();
+                    break;
+                case 0xA1:
+                    OP_ExA1();
+                    break;
+                default:
+                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction Ex" + std::to_string(opcode & 0x00FF) + " at byte " + std::to_string(i) + ".";
+                    break; 
+            }
+        case 0xF:
+            switch(opcode & 0x00FF) {
+                case 0x07:
+                    OP_Fx07();
+                    break;
+                case 0x0A:
+                    OP_Fx0A();
+                    break;
+                case 0x15:
+                    OP_Fx15();
+                case 0x18:
+                    OP_Fx18();
+                    break;
+                case 0x1E:
+                    OP_Fx1E();
+                    break;
+                case 0x29:
+                    OP_Fx29();
+                    break;
+                case 0x33:
+                    OP_Fx33();
+                    break;
+                case 0x55:
+                    OP_Fx55();
+                    break;
+                case 0x65:
+                    OP_Fx65();
+                    break;
+                default:
+                    std::cout << "NEOCHIP ROM ERROR: Unknown instruction Fx" + std::to_string(opcode & 0x00FF) + " at byte " + std::to_string(i) + ".";
+            }
+    }
 }
 
 void NC8_Core::setVF(bool val)
