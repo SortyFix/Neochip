@@ -1,9 +1,11 @@
 #include "core.h"
+#include <SDL3/SDL_scancode.h>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <SDL3/SDL_timer.h>
 
 #define FONTSET_START 0x050
 
@@ -265,6 +267,7 @@ void NC8_Core::OP_00EE()
 {
     sp--;
     pc = stack[sp];
+    pc += 2;
 }
 
 /*
@@ -300,7 +303,7 @@ void NC8_Core::OP_3xkk()
     
     if(g_reg[x] == kk)
     {
-        pc += 2;
+        pc += 4;
     }
 }
 
@@ -315,7 +318,7 @@ void NC8_Core::OP_4xkk()
 
     if(g_reg[x] != kk)
     {
-        pc += 2;
+        pc += 4;
     }
 }
 
@@ -326,7 +329,7 @@ void NC8_Core::OP_5xy0()
 
     if(g_reg[x] == g_reg[y])
     {
-        pc += 2;
+        pc += 4;
     }
 }
 
@@ -473,11 +476,22 @@ void NC8_Core::OP_Dxyn()
 
 // TODO BEGIN
 void NC8_Core::OP_Ex9E() {
-    // TODO: Implement opcode Ex9E (skip if key with value Vx is pressed)
+    std::cout << "Ex9E executing! \n";
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    std::cout << "Scancode: " << x << "\n";
+    if(display->isKeyDown(display->scancodes[g_reg[x]]))
+    {
+        pc += 4;
+    }
 }
 
 void NC8_Core::OP_ExA1() {
-    // TODO: Implement opcode ExA1 (skip if key with value Vx is not pressed)
+    std::cout << "ExA1 executing! \n";
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    if(!display->isKeyDown(display->scancodes[g_reg[x]]))
+    {
+        pc += 4;
+    }
 }
 
 void NC8_Core::OP_Fx07() {
@@ -486,7 +500,22 @@ void NC8_Core::OP_Fx07() {
 }
 
 void NC8_Core::OP_Fx0A() {
-    // TODO: Implement opcode Fx0A (wait for a key press, store in Vx)
+    std::cout << "Fx0A executing! \n";
+    uint8_t x = (opcode & 0x0F00) >> 8;
+    uint8_t pressed_key;
+
+    while(true)
+    {
+        pressed_key = display->getKey();
+
+        if(pressed_key != 0xFF)
+        {
+            break;
+        }
+        SDL_Delay(10);
+    }
+
+    g_reg[x] = pressed_key;
 }
 
 void NC8_Core::OP_Fx15() {

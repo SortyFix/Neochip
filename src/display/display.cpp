@@ -1,7 +1,12 @@
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
+#include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_render.h>
+#include <SDL3/SDL_scancode.h>
 #include <cstdint>
 #include "display.h"
+#include <algorithm>
 #include <iostream>
 
 NC8_Display::NC8_Display(int width, int height)    
@@ -96,11 +101,39 @@ int NC8_Display::getFramebufferIndex(uint8_t x, uint8_t y)
     return x + (y * CHIP8_DISPLAY_SIZE_X);
 }
 
-
-
 bool NC8_Display::isPixelOn(int index)
 {
     return framebuffer[index] == 0xFFFFFFFF;
+}
+
+/*
+    Returns the index of the matching keycode from the keycodes list when
+    a key press is registered through SDL.
+*/
+uint8_t NC8_Display::getKey()
+{
+    SDL_Event event;
+    std::cout << "NEOCHIP-OK: Entering LISTEN state until key is pressed. \n";
+    while(SDL_PollEvent(&event))
+    {
+        if(event.type == SDL_EVENT_KEY_DOWN) {
+            SDL_KeyboardEvent& keyEvent = event.key;
+            auto it = std::find(std::begin(keycodes), std::end(keycodes), keyEvent.key);
+            if(it != std::end(keycodes))
+            {
+                uint8_t dst = std::distance(std::begin(keycodes), it);
+                std::cout << "NEOCHIP-OK: Exiting LISTEN state; Key with index " << static_cast<int>(dst) << " pressed.\n";
+                return dst;
+            }
+        }
+    }
+    return 0xFF;
+}
+
+bool NC8_Display::isKeyDown(uint16_t scancode)
+{
+    const bool* keystate = SDL_GetKeyboardState(nullptr);
+    return keystate[scancode];
 }
 
 void NC8_Display::updateDisplay()

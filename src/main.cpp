@@ -6,7 +6,6 @@
 #include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_video.h>
 #include <filesystem>
-#include <fstream>
 #include <iostream>
 #include <thread>
 #include "display/display.h"
@@ -29,7 +28,7 @@ int main()
         return 1;
     }
 
-    std::string path = "/home/sortyfix/Projects/C++/Neochip/src/roms/2-ibm-logo.ch8";
+    std::string path = "/home/sortyfix/Projects/C++/Neochip/src/roms/3-corax+.ch8";
     std::uintmax_t file_size = std::filesystem::file_size(path);
     NC8_Display* display = new NC8_Display();
     std::cout << "NEOCHIP-OK: Initialized display.\n";
