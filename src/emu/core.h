@@ -4,6 +4,7 @@
 #include <string>
 
 #define FONTSET_SIZE 80
+#define CYCLES_PER_TIMER 10 
 
 class NC8_Core {
     public:
@@ -11,6 +12,7 @@ class NC8_Core {
         NC8_Core(std::string path, NC8_Display* dsp);
         void tick();
     private:
+        int current_tick;
         size_t rom_buffer_size;
         uint16_t pc;            // program counter
         uint8_t sp;             // stack pointer

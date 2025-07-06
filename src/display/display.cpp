@@ -113,10 +113,10 @@ bool NC8_Display::isPixelOn(int index)
 uint8_t NC8_Display::getKey()
 {
     SDL_Event event;
-    std::cout << "NEOCHIP-OK: Entering LISTEN state until key is pressed. \n";
+    std::cout << "NEOCHIP-OK: Entering LISTEN state until key is released. \n";
     while(SDL_PollEvent(&event))
     {
-        if(event.type == SDL_EVENT_KEY_DOWN) {
+        if(event.type == SDL_EVENT_KEY_UP) {
             SDL_KeyboardEvent& keyEvent = event.key;
             auto it = std::find(std::begin(keycodes), std::end(keycodes), keyEvent.key);
             if(it != std::end(keycodes))
@@ -133,6 +133,7 @@ uint8_t NC8_Display::getKey()
 bool NC8_Display::isKeyDown(uint16_t scancode)
 {
     const bool* keystate = SDL_GetKeyboardState(nullptr);
+    std::cout << scancode << ": " << keystate[scancode] << "\n";
     return keystate[scancode];
 }
 

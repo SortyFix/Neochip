@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <SDL3/SDL_timer.h>
+#include <thread>
 
 #define FONTSET_START 0x050
 
@@ -82,6 +83,7 @@ void NC8_Core::loadROM(std::string path) {
 
 void NC8_Core::tick()
 {
+    current_tick++;
     uint16_t init_pc = pc;
     uint8_t prefix = memory[pc];
     uint8_t suffix = memory[pc+1];
@@ -89,10 +91,13 @@ void NC8_Core::tick()
     bool jump = false;
 
     opcode = (prefix << 8) | suffix;
-    std::cout << std::hex << opcode << " PC: " << pc << "\n";
+    std::cout << "Opcode: " << std::hex << opcode << ", Current PC: " << pc << "\n";
     std::cout << std::flush;
 
-    updateDelay();
+    if(current_tick % CYCLES_PER_TIMER == 0)
+    {
+        updateDelay();
+    }
     
     switch((opcode & 0xF000) >> 12)
     {
@@ -228,8 +233,8 @@ void NC8_Core::tick()
             break;
     }
 
-    std::cout << init_pc << " ";
-    std::cout << pc << " ";
+    // std::cout << init_pc << " ";
+    // std::cout << pc << " ";
 
     if (init_pc == pc) {
         if (jump) return;
@@ -476,20 +481,19 @@ void NC8_Core::OP_Dxyn()
 
 // TODO BEGIN
 void NC8_Core::OP_Ex9E() {
-    std::cout << "Ex9E executing! \n";
     uint8_t x = (opcode & 0x0F00) >> 8;
-    std::cout << "Scancode: " << x << "\n";
     if(display->isKeyDown(display->scancodes[g_reg[x]]))
     {
+        std::cout << "REQUESTED KEYHIT AT " << +g_reg[x] << "!!! \n";
         pc += 4;
     }
 }
 
 void NC8_Core::OP_ExA1() {
-    std::cout << "ExA1 executing! \n";
     uint8_t x = (opcode & 0x0F00) >> 8;
     if(!display->isKeyDown(display->scancodes[g_reg[x]]))
     {
+        std::cout << "REQUESTED KEYMISS AT " << +g_reg[x] << "\n";
         pc += 4;
     }
 }
@@ -512,8 +516,13 @@ void NC8_Core::OP_Fx0A() {
         {
             break;
         }
-        SDL_Delay(10);
+
+        updateDelay();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+
+    std::cout << "Key pressed: " << pressed_key << "\n";
 
     g_reg[x] = pressed_key;
 }

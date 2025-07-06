@@ -28,7 +28,7 @@ int main()
         return 1;
     }
 
-    std::string path = "/home/sortyfix/Projects/C++/Neochip/src/roms/3-corax+.ch8";
+    std::string path = "/home/sortyfix/Projects/C++/Neochip/src/roms/6-keypad.ch8";
     std::uintmax_t file_size = std::filesystem::file_size(path);
     NC8_Display* display = new NC8_Display();
     std::cout << "NEOCHIP-OK: Initialized display.\n";
@@ -48,7 +48,7 @@ int main()
         display->updateDisplay();
         core->tick();
         
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     display->killDisplay();
