@@ -88,10 +88,8 @@ void NC8_Core::tick()
     uint8_t prefix = memory[pc];
     uint8_t suffix = memory[pc+1];
 
-    bool jump = false;
-
     opcode = (prefix << 8) | suffix;
-    std::cout << "Opcode: " << std::hex << opcode << ", Current PC: " << pc << "\n";
+    std::cout << "Opcode: " << std::hex << opcode << ", Current PC: " << pc << ", Current VF: " << +g_reg[0xF] << ", Current Delay Timer: " << +delay << ", Current V2: " << +g_reg << "\n";
     std::cout << std::flush;
 
     if(current_tick % CYCLES_PER_TIMER == 0)
@@ -114,11 +112,10 @@ void NC8_Core::tick()
             break;
         case 1:
             OP_1nnn();
-            jump = true;
-            break;
+            return;
         case 2:
             OP_2nnn();
-            break;
+            return;
         case 3:
             OP_3xkk();
             break;
@@ -237,7 +234,6 @@ void NC8_Core::tick()
     // std::cout << pc << " ";
 
     if (init_pc == pc) {
-        if (jump) return;
         pc += 2;
     }
 }
@@ -405,7 +401,6 @@ void NC8_Core::OP_8xy5()
     if(g_reg[x] > g_reg[y])
     {
         g_reg[0xF] = 1;
-        return;
     }
     g_reg[0xF] = 0;
 
@@ -470,6 +465,8 @@ void NC8_Core::OP_Dxyn()
 
     uint8_t n_bytes[n];
 
+    g_reg[0xF] = 0;
+
     for(int index = 0; index < n; index++)
     {
         n_bytes[index] = memory[i_reg + index];
@@ -479,12 +476,10 @@ void NC8_Core::OP_Dxyn()
         [this]() -> void { g_reg[0xF] = 1; });
 }
 
-// TODO BEGIN
 void NC8_Core::OP_Ex9E() {
     uint8_t x = (opcode & 0x0F00) >> 8;
     if(display->isKeyDown(display->scancodes[g_reg[x]]))
     {
-        std::cout << "REQUESTED KEYHIT AT " << +g_reg[x] << "!!! \n";
         pc += 4;
     }
 }
@@ -493,7 +488,6 @@ void NC8_Core::OP_ExA1() {
     uint8_t x = (opcode & 0x0F00) >> 8;
     if(!display->isKeyDown(display->scancodes[g_reg[x]]))
     {
-        std::cout << "REQUESTED KEYMISS AT " << +g_reg[x] << "\n";
         pc += 4;
     }
 }
@@ -504,7 +498,6 @@ void NC8_Core::OP_Fx07() {
 }
 
 void NC8_Core::OP_Fx0A() {
-    std::cout << "Fx0A executing! \n";
     uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t pressed_key;
 
@@ -518,11 +511,7 @@ void NC8_Core::OP_Fx0A() {
         }
 
         updateDelay();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-
-    std::cout << "Key pressed: " << pressed_key << "\n";
 
     g_reg[x] = pressed_key;
 }
@@ -535,7 +524,6 @@ void NC8_Core::OP_Fx15() {
 void NC8_Core::OP_Fx18() {
     // TODO: Implement opcode Fx18 (set sound timer = Vx)
 }
-// TODO END
 
 void NC8_Core::OP_Fx1E()
 {
@@ -546,8 +534,8 @@ void NC8_Core::OP_Fx1E()
 void NC8_Core::OP_Fx29()
 {                                         
     uint8_t x = (opcode & 0x0F00) >> 8;
-    uint8_t fontset_index = x * 5;
-    i_reg = FONTSET_START + fontset_index;
+    uint8_t digit = g_reg[x];
+    i_reg = FONTSET_START + digit * 5;
 }
 
 void NC8_Core::OP_Fx33()

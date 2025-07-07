@@ -4,7 +4,7 @@
 #include <string>
 
 #define FONTSET_SIZE 80
-#define CYCLES_PER_TIMER 10 
+#define CYCLES_PER_TIMER 8
 
 class NC8_Core {
     public:

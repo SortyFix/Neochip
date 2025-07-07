@@ -133,7 +133,6 @@ uint8_t NC8_Display::getKey()
 bool NC8_Display::isKeyDown(uint16_t scancode)
 {
     const bool* keystate = SDL_GetKeyboardState(nullptr);
-    std::cout << scancode << ": " << keystate[scancode] << "\n";
     return keystate[scancode];
 }
 

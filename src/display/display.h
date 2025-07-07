@@ -18,22 +18,22 @@ class NC8_Display
         ~NC8_Display();
         uint32_t framebuffer[64 * 32];
         uint16_t scancodes[16] = {
-            SDL_SCANCODE_0,
-            SDL_SCANCODE_1,
-            SDL_SCANCODE_2,
-            SDL_SCANCODE_3,
-            SDL_SCANCODE_4,
-            SDL_SCANCODE_5,
-            SDL_SCANCODE_6,
-            SDL_SCANCODE_7,
-            SDL_SCANCODE_8,
-            SDL_SCANCODE_9,
-            SDL_SCANCODE_A,
-            SDL_SCANCODE_B,
-            SDL_SCANCODE_C,
-            SDL_SCANCODE_D,
-            SDL_SCANCODE_E,
-            SDL_SCANCODE_F
+         SDL_SCANCODE_X, // 0
+         SDL_SCANCODE_1, // 1
+         SDL_SCANCODE_2, // 2
+         SDL_SCANCODE_3, // 3
+         SDL_SCANCODE_Q, // 4
+         SDL_SCANCODE_W, // 5
+         SDL_SCANCODE_E, // 6
+         SDL_SCANCODE_A, // 7
+         SDL_SCANCODE_S, // 8
+         SDL_SCANCODE_D, // 9
+        SDL_SCANCODE_Y, // A
+        SDL_SCANCODE_C, // B
+        SDL_SCANCODE_4, // C
+        SDL_SCANCODE_R, // D
+        SDL_SCANCODE_F, // E
+        SDL_SCANCODE_V  // F
         };
         SDL_Keycode keycodes[16] = {SDLK_0, SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7, SDLK_8, 
                                 SDLK_9, SDLK_A, SDLK_B, SDLK_C, SDLK_D, SDLK_E, SDLK_F};
