@@ -407,12 +407,7 @@ void NC8_Core::OP_8xy5()
     uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t y = (opcode & 0x00F0) >> 4;
 
-    if(g_reg[x] > g_reg[y])
-    {
-        g_reg[0xF] = 1;
-    }
-    g_reg[0xF] = 0;
-
+    g_reg[0xF] = g_reg[x] >= g_reg[y] ? 1 : 0;
     g_reg[x] -= g_reg[y];
 }
 
@@ -436,7 +431,7 @@ void NC8_Core::OP_8xy7()
 {
     uint8_t x = (opcode & 0x0F00) >> 8;
     uint8_t y = (opcode & 0x00F0) >> 4;
-    if(g_reg[y] > g_reg[x]) g_reg[0xF] = 1; else g_reg[0xF] = 0;
+    if(g_reg[y] >= g_reg[x]) g_reg[0xF] = 1; else g_reg[0xF] = 0;
     g_reg[x] = g_reg[y] - g_reg[x];
 }
 

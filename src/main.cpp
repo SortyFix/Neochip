@@ -30,7 +30,7 @@ int main()
         return 1;
     }
 
-    std::string path = "/home/sortyfix/Projects/C++/Neochip/src/roms/pong.rom";
+    std::string path = "/home/sortyfix/Projects/C++/Neochip/src/roms/Worm V4 [RB-Revival Studios, 2007].ch8";
     std::uintmax_t file_size = std::filesystem::file_size(path);
     NC8_Display* display = new NC8_Display();
     std::cout << "NEOCHIP-OK: Initialized display.\n";
