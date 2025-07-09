@@ -8,9 +8,16 @@
 
 class NC8_Core {
     public:
+        bool shift_quirk = false;
+        bool logic_quirk = false;
+        
         NC8_Display* display;
-        NC8_Core(std::string path, NC8_Display* dsp);
+        NC8_Core(std::string path, NC8_Display* dsp, bool shift, bool logic);
+
+        bool draw_now = false;
+        
         void tick();
+        void reset();
     private:
         int current_tick;
         size_t rom_buffer_size;

@@ -80,12 +80,14 @@ void NC8_Display::drawSprite(uint8_t vx, uint8_t vy, const uint8_t* n_bytes, siz
 
                 size_t index = getFramebufferIndex(x, y);
 
-                if(isPixelOn(index))
+                bool pixelWasOn = isPixelOn(index);
+
+                togglePixel(index);
+
+                if(pixelWasOn)
                 {
                     collision = true;
                 }
-
-                togglePixel(index);
             }
         }
     }

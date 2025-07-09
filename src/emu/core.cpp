@@ -45,8 +45,11 @@ uint8_t fontset[80] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80
 };
 
-NC8_Core::NC8_Core(std::string path, NC8_Display* dsp)
+NC8_Core::NC8_Core(std::string path, NC8_Display* dsp, bool shift, bool logic)
 {
+    shift_quirk = shift;
+    logic_quirk = logic;
+    
     loadFonts();
     loadROM(path);
     pc = 0x200;
@@ -79,6 +82,12 @@ void NC8_Core::loadROM(std::string path) {
     }
 
     romfile.read(reinterpret_cast<char*>(&memory[0x200]), size);
+}
+
+void NC8_Core::reset()
+{
+    display->clear();
+    pc = 0x200;
 }
 
 void NC8_Core::tick()
@@ -410,8 +419,17 @@ void NC8_Core::OP_8xy5()
 void NC8_Core::OP_8xy6()
 {
     uint8_t x = (opcode & 0x0F00) >> 8;
-    if((g_reg[x] & 0x0001) == 1) g_reg[0xF] = 1; else g_reg[0xF] = 0;
-    g_reg[x] /= 2;
+
+    if(shift_quirk)
+    {
+        uint8_t y = (opcode & 0x00F0) >> 4;
+        g_reg[0xF] = g_reg[y] & 0x1;
+        g_reg[x] = g_reg[y] >> 1;
+        return;
+    }
+
+    g_reg[0xF] = g_reg[x] & 0x1;
+    g_reg[x] >>= 1;
 }
 
 void NC8_Core::OP_8xy7()
@@ -474,6 +492,8 @@ void NC8_Core::OP_Dxyn()
 
     display->drawSprite(g_reg[x], g_reg[y], n_bytes, n, 
         [this]() -> void { g_reg[0xF] = 1; });
+
+    draw_now = true;
 }
 
 void NC8_Core::OP_Ex9E() {
