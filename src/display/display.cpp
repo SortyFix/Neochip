@@ -34,6 +34,16 @@ NC8_Display::~NC8_Display()
     killDisplay();
 }
 
+SDL_Renderer* NC8_Display::getRenderer()
+{
+    return renderer;
+}
+
+SDL_Window* NC8_Display::getWindow()
+{
+    return window;
+}
+
 void NC8_Display::clear()
 {
     std::fill_n(framebuffer, 64 * 32, 0xFF000000);

@@ -37,6 +37,9 @@ class NC8_Display
         };
         SDL_Keycode keycodes[16] = {SDLK_0, SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7, SDLK_8, 
                                 SDLK_9, SDLK_A, SDLK_B, SDLK_C, SDLK_D, SDLK_E, SDLK_F};
+
+        SDL_Renderer* getRenderer();
+        SDL_Window* getWindow();
         void clear();
         void updateDisplay();
         void killDisplay();

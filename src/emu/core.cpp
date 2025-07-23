@@ -6,7 +6,6 @@
 #include <iostream>
 #include <string>
 #include <SDL3/SDL_timer.h>
-#include <thread>
 
 #define FONTSET_START 0x050
 
@@ -98,8 +97,8 @@ void NC8_Core::tick()
     uint8_t suffix = memory[pc+1];
 
     opcode = (prefix << 8) | suffix;
-    std::cout << "Opcode: " << std::hex << opcode << ", Current PC: " << pc << ", Current VF: " << +g_reg[0xF] << ", Current Delay Timer: " << +delay << ", Current V2: " << +g_reg << "\n";
-    std::cout << std::flush;
+    // std::cout << "Opcode: " << std::hex << opcode << ", Current PC: " << pc << ", Current VF: " << +g_reg[0xF] << ", Current Delay Timer: " << +delay << ", Current V2: " << +g_reg << "\n";
+    // std::cout << std::flush;
 
     if(current_tick % CYCLES_PER_TIMER == 0)
     {
