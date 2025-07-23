@@ -19,7 +19,7 @@ make
 
 ## Usage
 
-To run Neochip with a CHIP-8 ROM, use the following command:
+To run Neochip with a CHIP-8 ROM, use the following command from the /build directory you created during the installation:
 
 ```bash
 ./neochip [file path to your ROM]
